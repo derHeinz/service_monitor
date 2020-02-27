@@ -1,0 +1,40 @@
+{
+    "services": {
+		"Samba File Share": {
+			"type": "checkers.systemdchecker.SystemdChecker",
+			"args": {
+				"service_name": "smbd"
+			}
+		},
+		"Mosquitto MQTT Broker": {
+			"type": "checkers.systemdchecker.SystemdChecker",
+			"args": {
+				"service_name": "mosquitto"
+			}
+		},
+		"random-script": {
+			"type": "checkers.commandlinechecker.CommandLineChecker",
+			"args": {
+				"command_line": "ps -faux | grep [s]cript.sh"
+			}
+		},
+		"webservice-test": {
+			"type": "checkers.httpchecker.HttpChecker",
+			"args": {
+				"url": "http://localhost:5000/"
+			}
+		}
+    },
+	"exporter": {
+		"type": "exporter.htmltableexporter.HTMLTableExporter",
+		"args": {
+			"filename": "/tmp/service_states.html"
+		}
+	},
+	"exporter_old": {
+		"type": "exporter.plotlytableexporter.PlotlyTableExporter",
+		"args": {
+			"filename": "/tmp/service_states.html"
+		}
+	}
+}
