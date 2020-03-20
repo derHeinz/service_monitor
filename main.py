@@ -5,6 +5,14 @@ from pydoc import locate
 
 from config_helper import load_config_file
 
+class Service(object):
+    
+    def __init__(self, **kwargs):
+        self.checker_obj = kwargs['checker_obj']
+        self.info_obj = kwargs.get('info_obj', None)
+        self.enabled = kwargs['enabled']
+        
+
 def setup_logging():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -21,52 +29,79 @@ def setup_logging():
     root_logger.addHandler(console_handler)
     #root_logger.addHandler(file_handler)
 
-def create_servicedict(config):
+def create_services(config):
     services_config = config['services']
 
-    servicename_to_serviceobject = {}
+    services_list = []
     for service_name in services_config:
         logging.debug("reading config of service '{}'".format(service_name))
-        service_data_config = services_config[service_name]
         
-        service_type = locate(service_data_config['type'])
-        service_obj = service_type(**service_data_config['args'])
+        service_args = {}
+        service_args['service_name'] = service_name
         
-        enabled = True
-        if 'enabled' in service_data_config:
-            if not service_data_config['enabled']:
-                logging.debug("service '{}' disabled.".format(service_name))
-                enabled = False
-        if enabled:
-            servicename_to_serviceobject.update({service_name: service_obj})
+        service_config = services_config[service_name]
+        service_args['service_config'] = service_config
+        
+        service_group = service_config['group']
+        service_args['service_group'] = service_group
+        
+        checker_type = locate(service_config['checker_type'])
+        service_args['checker_type'] = checker_type
+        
+        checker_obj = checker_type(**service_config['checker_args'])
+        service_args['checker'] = checker_obj
 
-    return servicename_to_serviceobject
+        if 'info_type' in service_config:
+            info_type = locate(service_config['info_type'])
+            service_args['info_type'] = info_type
+            info_obj = info_type(**service_config['info_args'])
+            service_args['info'] = info_obj
+        
+        # enabled flag for disabling without removal from configuration
+        enabled =  service_args.get('enabled', True)
+        service_args['enabled'] = enabled
+        if not enabled:
+            logging.debug("service '{}' disabled.".format(service_name))
+            
+        # flag indicating whether to query info's even if the checker resulted in False
+        query = service_args.get('query_info_even_if_offline', False)
+        service_args['query_info_even_if_offline'] = query
+        
+        services_list.append(service_args)
+
+    return services_list
     
 def create_exporter(config):
     exporter_config = config['exporter']
     exporter_type = locate(exporter_config['type'])
     return exporter_type(**exporter_config['args'])
     
-def check_health(services_dict):
-    service_names = []
-    service_states = []
-    for service_name, service_obj in services_dict.items():
-        logging.debug("determining service status for service '{}' with checker {}".format(service_name, service_obj))
+def check_health(services_list):
+    for service in services_list:
+        service_name = service['service_name']
+        logging.debug("determining service status for service '{}' with checker {}".format(service_name, service['checker_type']))
+        service_obj = service['checker']
         service_state = service_obj.is_active()
+        service['service_state'] = service_state
         logging.debug("service '{}' is {}".format(service_name, service_state))
-        service_names.append(service_name)
-        service_states.append(service_state)
-    return service_names, service_states
+        
+        if 'info' in service:
+            if service_state or service['query_info_even_if_offline']:
+                logging.debug("determining information for service '{}' with infos {}".format(service_name, service['info_type']))
+                info_obj = service['info']
+                service_info = info_obj.query_info()
+                logging.debug("service '{}' has info {}".format(service_name, service_info))
+                service['service_info'] = service_info
 
 def main():
     setup_logging()
     config = load_config_file('config.json')
     logging.debug("config: {}".format(config))
-    service_dict = create_servicedict(config)
+    services_list = create_services(config)
+    check_health(services_list)
+    
     exporter = create_exporter(config)
-
-    service_names, service_states = check_health(service_dict)
-    exporter.export(service_names, service_states)
+    exporter.export(services_list)
 
 # Main function
 if __name__ == "__main__":

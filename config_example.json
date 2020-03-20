@@ -1,40 +1,34 @@
 {
     "services": {
-		"Samba File Share": {
-			"type": "checkers.systemdchecker.SystemdChecker",
-			"args": {
-				"service_name": "smbd"
-			}
+		"fake dir": {	
+			"group": "Local Services",
+			"checker_type": "checkers.commandlinechecker.CommandLineChecker",
+			"checker_args": {
+				"command_line": "dir"
+			},
+			"info_type": "info.commandlineinfo.CommandlineInfo",
+			"info_args": {
+				"command": "chcp 65001 | dir"
+			},
+			"query_info_even_if_offline": false
+			
 		},
-		"Mosquitto MQTT Broker": {
-			"type": "checkers.systemdchecker.SystemdChecker",
-			"args": {
-				"service_name": "mosquitto"
-			}
-		},
-		"random-script": {
-			"type": "checkers.commandlinechecker.CommandLineChecker",
-			"args": {
-				"command_line": "ps -faux | grep [s]cript.sh"
-			}
-		},
-		"webservice-test": {
-			"type": "checkers.httpchecker.HttpChecker",
-			"args": {
-				"url": "http://localhost:5000/"
-			}
+		"http local": {
+			"group": "Local Services",
+			"checker_type": "checkers.httpchecker.HttpChecker",
+			"checker_args": {
+				"url": "http://localhost:8080/"
+			},
+			"info_type": "info.httpinfo.HttpInfo",
+			"info_args": {
+				"url": "http://localhost:8080/"
+			},
 		}
     },
 	"exporter": {
 		"type": "exporter.htmltableexporter.HTMLTableExporter",
 		"args": {
-			"filename": "/tmp/service_states.html"
-		}
-	},
-	"exporter_old": {
-		"type": "exporter.plotlytableexporter.PlotlyTableExporter",
-		"args": {
-			"filename": "/tmp/service_states.html"
+			"filename": "service_states.html"
 		}
 	}
 }
