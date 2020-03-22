@@ -22,7 +22,7 @@
 			"info_type": "info.httpinfo.HttpInfo",
 			"info_args": {
 				"url": "http://localhost:8080/"
-			},
+			}
 		}
     },
 	"exporter": {

@@ -1,5 +1,7 @@
 import subprocess
+import locale
 import logging
+
 
 class CommandlineInfo(object):
 
@@ -9,7 +11,7 @@ class CommandlineInfo(object):
         
     def query_info(self):
         logging.debug("executing '{}'".format(self.command))
-        result = subprocess.check_output(self.command, shell=True, encoding="utf-8")
+        result = subprocess.check_output(self.command, shell=True, encoding=locale.getdefaultlocale()[1])
         
         if result:
             result = result.strip()

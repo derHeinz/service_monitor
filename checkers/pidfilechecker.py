@@ -5,6 +5,8 @@ import os
 import logging
 import errno
 
+logger = logging.getLogger(__file__)
+
 class PidFileChecker(object):
 
     def __init__(self, **kwargs):
@@ -45,8 +47,8 @@ class PidFileChecker(object):
             #parse a number
             try:
                 pid = int(line)
-                logging.debug("read {} from file {}".format(pid, self.pid_file))
+                logger.debug("read {} from file {}".format(pid, self.pid_file))
                 return self.pid_exists(pid)
             except ValueError as ve:
-                logging.error("ValueError error ({0}): {1}".format(e.errno, e.strerror))
+                logger.error("ValueError error ({0}): {1}".format(e.errno, e.strerror))
                 return False
