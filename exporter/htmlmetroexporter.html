@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4.3.2/css/metro-all.min.css">
+
+    <style>
+    .tiles-group {{
+        margin-left: 0;
+        margin-top: 50px;
+    }}
+
+    @media all and (min-width: 768px) {{
+        .tiles-group {{
+            margin-left: 80px;
+        }}
+  
+     }}
+    </style>
+    
+    <title>Service Monitor {updated}</title>
+</head>
+<body class="bg-dark fg-white h-vh-100 m4-cloak">
+<script src="https://cdn.metroui.org.ua/v4.3.2/js/metro.min.js"></script>
+
+
+<!-- shit with tiles -->
+<div class="container-fluid start-screen h-100">
+
+    <h1 class="start-screen-title">Service Monitor</h1>
+    <h6>{updated}</h6>
+    
+    <div class="tiles-area clear">
+        {content}
+    </div>    
+
+</div>
+
+</body>
+</html>
