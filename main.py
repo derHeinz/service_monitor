@@ -1,12 +1,12 @@
-import os
-import sys
 import logging
+import time
 from logging.handlers import RotatingFileHandler
 from pydoc import locate
+from multiprocessing import Pool
 
 from config_helper import load_config_file
 from service_creator import create_services
-from health_checker import check_health_for_services
+from health_checker import check_health_for_services, check_health
 
 logger = logging.getLogger(__file__)
 
@@ -31,15 +31,37 @@ def create_exporter(config):
     exporter_type = locate(exporter_config['type'])
     return exporter_type(**exporter_config['args'])
     
+def as_job(service_data):
+    res = check_health(service_data)
+    service_data['service_state'] = res[0]
+    service_data['service_info'] = res[1]
+    return service_data
+    
 def main():
     setup_logging()
     config = load_config_file('config.json')
     logger.debug("config: {}".format(config))
-    services_list = create_services(config)
-    check_health_for_services(services_list)
     
+    services_list = create_services(config)
     exporter = create_exporter(config)
-    exporter.export(services_list)
+    
+    # calculate health
+    results = None
+    workers = config.get('workers', None)
+    start_time = time.time()
+    if workers:
+        logger.debug("running with {} workers".format(workers))
+        procs = workers
+        p = Pool(processes=procs)
+        results = p.map(as_job, services_list)
+    else:
+        logger.debug("running without workers")
+        check_health_for_services(services_list)
+        results = services_list
+    end_time = time.time()
+    logger.debug("needed {}s to process".format((end_time - start_time)))
+    
+    exporter.export(results)
 
 # Main function
 if __name__ == "__main__":
