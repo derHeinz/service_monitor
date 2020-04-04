@@ -11,11 +11,9 @@ class HTMLTableExporter(HTMLExporter):
 
     def __init__(self, **kwargs):
         super(HTMLTableExporter, self).__init__(**kwargs)
-        if 'template' in kwargs:
-            self.template = kwargs['template']
-        else:
-            ############################ TODO ###########################
-            self.template = os.path.dirname(__file__) + '/htmltableexporter.html'
+            
+    def default_template_filename(self):
+        return 'htmltableexporter.html'
             
     def create_state_string(self, val):
         if val==True:

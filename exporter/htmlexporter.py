@@ -1,6 +1,9 @@
 import os
 from collections import defaultdict
 import datetime
+import logging
+
+logger = logging.getLogger(__file__)
 
 class HTMLExporter(object):
 
@@ -10,8 +13,10 @@ class HTMLExporter(object):
         if 'template' in kwargs:
             self.template = kwargs['template']
         else:
-            ############################ TODO ###########################
-            self.template = os.path.dirname(__file__) + '/htmlmetroexporter.html'
+            self.template = os.path.join(os.path.dirname(__file__), self.default_template_filename())
+            
+    def default_template_filename(self):
+        return 'htmlexporter.html'
             
     def load_template(self):
         with open(self.template) as template_file:    
@@ -32,6 +37,21 @@ class HTMLExporter(object):
         
     def item_entry(self, service_name, service_state, service_state_checker_type, service_info, service_info_type, service_exporter_hints):
         return ""
+        
+    def additional_files(self):
+        pass
+        
+    def export_additional_files(self):
+        if not self.additional_files():
+            return
+        # write out additional files
+        dir_to_write_to = os.path.dirname(self.filename)
+        logger.debug(f"dir {dir_to_write_to}.")
+        for filename in self.additional_files():
+            src = os.path.join(os.path.dirname(__file__), filename)
+            dst = os.path.join(dir_to_write_to, filename)
+            logger.debug(f"copy {src} to {dst}.")
+            copy(src, dst)
     
     def export(self, service_info_array):
     
@@ -72,4 +92,6 @@ class HTMLExporter(object):
         file_text = template.format(content=content_text, updated=current_time)
         with open(self.filename, 'w') as outfile:
             outfile.write(file_text)
+            
+        self.export_additional_files()
         

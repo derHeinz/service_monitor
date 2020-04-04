@@ -1,21 +1,24 @@
 import os
 from collections import defaultdict
 import datetime
+import logging
+
+from shutil import copy
 
 from . htmlexporter import HTMLExporter
+
+logger = logging.getLogger(__file__)
 
 class HTMLMetroExporter(HTMLExporter):
 
     BG_CLASSES = ['bg-cyan', 'bg-brown', 'bg-teal', 'bg-indigo']
-
+    
     def __init__(self, **kwargs):
         super(HTMLMetroExporter, self).__init__(**kwargs)
-        if 'template' in kwargs:
-            self.template = kwargs['template']
-        else:
-            ############################ TODO ###########################
-            self.template = os.path.dirname(__file__) + '/htmlmetroexporter.html'
         self.bg_tile_class_ind = 0
+        
+    def default_template_filename(self):
+        return 'htmlmetroexporter.html'
 
     def _bg_tile_class(self):
         return self.BG_CLASSES[self.bg_tile_class_ind]
@@ -73,3 +76,4 @@ class HTMLMetroExporter(HTMLExporter):
             {post_content}
          </div>
         '''
+        
