@@ -2,6 +2,7 @@ import subprocess
 import locale
 import logging
 
+logger = logging.getLogger(__file__)
 
 class CommandlineInfo(object):
 
@@ -10,7 +11,7 @@ class CommandlineInfo(object):
         self.command_format = kwargs.get('command_format') or None
         
     def query_info(self):
-        logging.debug("executing '{}'".format(self.command))
+        logger.debug("executing '{}'".format(self.command))
         result = subprocess.check_output(self.command, shell=True, encoding=locale.getdefaultlocale()[1])
         
         if result:

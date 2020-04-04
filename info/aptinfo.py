@@ -1,6 +1,8 @@
 import subprocess
 import logging
 
+logger = logging.getLogger(__file__)
+
 class AptInfo(object):
 
     def __init__(self, **kwargs):
@@ -8,7 +10,7 @@ class AptInfo(object):
         
     def query_info(self):
         command = "dpkg -s {} | grep Version".format(self.package)
-        logging.debug("executing '{}'".format(command))
+        logger.debug("executing '{}'".format(command))
         result = subprocess.check_output(command, shell=True, encoding="utf-8")
         
         if result:

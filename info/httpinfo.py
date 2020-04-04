@@ -1,8 +1,9 @@
 from urllib.request import urlopen 
 from urllib.error import URLError
 from lxml import html
-
 import logging
+
+logger = logging.getLogger(__file__)
 
 class HttpInfo(object):
 
@@ -14,18 +15,18 @@ class HttpInfo(object):
 
     def query_info(self):
         try:
-            logging.debug("requesting '{}'".format(self.url))
+            logger.debug("requesting '{}'".format(self.url))
             res = urlopen(self.url)
             res_bytes = res.read()
             res_text = None
             
             if (self.xpath):
-                logging.debug("executing xpath '{}' on html output.".format(self.xpath))
+                logger.debug("executing xpath '{}' on html output.".format(self.xpath))
                 tree = html.fromstring(res_bytes)
                 res_text = tree.xpath(self.xpath)
             else:
                 res_text = str(res_bytes)
             return res_text
         except URLError:
-            logging.debug("got some http error")
+            logger.debug("got some http error")
             return False

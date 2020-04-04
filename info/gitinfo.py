@@ -1,6 +1,8 @@
 import subprocess
 import logging
 
+logger = logging.getLogger(__file__)
+
 class GitInfo(object):
 
     def __init__(self, **kwargs):
@@ -8,7 +10,7 @@ class GitInfo(object):
         
     def query_info(self):
         cmd = 'git show --oneline -s'
-        logging.debug("executing '{}'".format(cmd))
+        logger.debug("executing '{}'".format(cmd))
         result = subprocess.check_output(cmd, shell=True, encoding="utf-8", cwd=self.directory)
         
         if result:
