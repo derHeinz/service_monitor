@@ -35,6 +35,14 @@ There are the following "exporters" defined:
 * htmlmetroexporter.html: export into an html file. That contains tile-like objects to display results. Using Metro, see [Metro_4(]https://metroui.org.ua/) for more details.
 * compoundexporter.py: exports into one or more exporters simultanously.
 
+## Why use it?
+
+* easy to use, just write config file and run `python main.py`.
+* a variety of modules to check a service's state.
+* a veriety of modules to query for info's of states.
+* easy to extend checkers: just write another python file in /checkers/. See available checkers for the interface.
+* easy to extend info: just write another python file in /info/. See available info files for the interface.
+
 ## Example configuration with explanation
 ```
 {
