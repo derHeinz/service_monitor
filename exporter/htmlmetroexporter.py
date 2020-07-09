@@ -11,7 +11,7 @@ logger = logging.getLogger(__file__)
 
 class HTMLMetroExporter(HTMLExporter):
 
-    BG_CLASSES = ['bg-cyan', 'bg-brown', 'bg-teal', 'bg-indigo']
+    BG_CLASSES = ['bg-cyan', 'bg-pink', 'bg-brown', 'bg-teal', 'bg-indigo', 'bg-amber', 'bg-mauve', 'bg-steel']
     
     def __init__(self, **kwargs):
         super(HTMLMetroExporter, self).__init__(**kwargs)
@@ -57,9 +57,10 @@ class HTMLMetroExporter(HTMLExporter):
         post_content = ''
         tile_content = f'<p class="text-center text-small">{service_info}</p>'
         if service_exporter_hints and service_exporter_hints.get('metro_tile_icon'):
-            tile_content = '<span class="{icon} icon"></span>'.format(icon=service_exporter_hints['metro_tile_icon'])
-            pre_content = f'<span data-role="hint" data-hint-text="{service_info}" data-cls-hint="{tile_class} fg-white drop-shadow">'
-            post_content = '</span>'
+            pre_content = '<span class="badge-bottom"><span class="{icon} mif-lg"></span></span>'.format(icon=service_exporter_hints['metro_tile_icon'])
+            #tile_content = '<span class="{icon} icon"></span>'.format(icon=service_exporter_hints['metro_tile_icon'])
+            #pre_content = f'<span data-role="hint" data-hint-text="{service_info}" data-cls-hint="{tile_class} fg-white drop-shadow">'
+            #post_content = '</span>'
 
         service_state_string = self._create_state_string(service_state)
         
