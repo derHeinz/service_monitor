@@ -10,11 +10,12 @@ class SOAPInfo(object):
         self.url = kwargs['url']
         self.request = kwargs['request']
         self.xpath = kwargs.get('xpath', False)
+        self.timeout = int(kwargs.get('timeout', 10))
         self.headers = {'content-type': 'text/xml'}
 
     def query_info(self):
         logger.debug("requesting '{}'".format(self.url))
-        response = requests.post(self.url,data=self.request,headers=self.headers)
+        response = requests.post(self.url, data=self.request, headers=self.headers, timeout=self.timeout)
         res_bytes = response.content
         if (self.xpath):
             logger.debug("executing xpath '{}' on html output.".format(self.xpath))

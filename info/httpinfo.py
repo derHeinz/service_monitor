@@ -13,6 +13,7 @@ class HttpInfo(object):
         self.url = kwargs['url']
         self.xpath = kwargs.get('xpath', False)
         self.jsonpath = kwargs.get('jsonpath', False)
+        
         if (self.xpath and self.jsonpath):
             raise ValueError("config invalid there is xpath: {} and jsonpath configured {}.".format(self.xpath, self.jsonpath))
 

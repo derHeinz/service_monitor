@@ -99,3 +99,15 @@ For epmap (a windows service for a purpose I don't know) a checker is in place t
 The exporter writes a file (service_states.html) and groups the services by their groups ("group_headers": true).
 
 The result may probably look like this ![Example](/resources/screenshot-metro.PNG).
+
+## TODOs
+- [ ] commandlinechecker.py needs a timeout.
+- [ ] httpchecker.py should have configureable timeout.
+- [ ] systemdchecker.py should have configureable timeout.
+- [ ] aptinfo.py should have configureable timeout.
+- [ ] commandlineinfo.py timeout doesn't work. (under windows?)
+- [ ] httinfo.py should have configureable timeout.
+- [ ] oracledb_sqlinfo.py should have configureable timeout. 
+
+
+

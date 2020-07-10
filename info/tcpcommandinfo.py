@@ -8,15 +8,17 @@ class TCPCommandInfo(object):
 
     def __init__(self, **kwargs):
         self.host = kwargs['host']
-        self.port = kwargs['port']
+        self.port = int(kwargs['port'])
         self.command = kwargs.get('command', None)
         self.regex = kwargs.get('regex', None)
         self.regex_result_index = kwargs.get('regex_result_index', 0)
+        self.timeout = int(kwargs.get('timeout', 10))
         
     def query_info(self):
         logger.debug("connecting to {}:{}.".format(self.host, self.port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, int(self.port)))
+        s.settimeout(self.timeout)
+        s.connect((self.host, self.port))
         if (self.command is not None):
             logger.debug("sending command {}.".format(self.command))
             s.sendall(bytearray(self.command, 'utf-8'))
