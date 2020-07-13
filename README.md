@@ -22,6 +22,7 @@ There are the following "checkers" that allow to figure out the online/offline s
 There are the following "infos" that allow to query information of a service:
 * aptinfo.py: executes a `dpkg -s {} | grep Version` and returns systemout.
 * commandlineinfo.py: executes a given command and returns systemout.
+* compoundinfo.py: use this if you want to get info's from more than one info type, or if you need more than one information from the same type.
 * gitinfo.py: returns the last commit message. Executes `git show --oneline -s` and returns the value. 
 * httpinfo.py: requests a url, and returns the result. Result can be further condensed by xpath or jsonpath.
 * oracledb_sqlinfo.py: query Oracle Database (sql) and return the query results.
