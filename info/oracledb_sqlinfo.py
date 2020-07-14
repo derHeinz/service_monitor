@@ -7,7 +7,10 @@ class OracleDBInfo(object):
 
     def __init__(self, **kwargs):
         self.url = kwargs['url']
-        self.sid = kwargs['sid']
+        
+        self.sid = kwargs.get('sid', None)
+        self.service_name = kwargs.get('service_name', None)
+        
         self.port = kwargs['port']
         self.user = kwargs['user']
         self.password = kwargs['password']
@@ -19,8 +22,17 @@ class OracleDBInfo(object):
         if (self.sql and self.sqls):
             raise ValueError("Only one of 'sql' or 'sqls' must be given")
             
+        if (self.sid==None and self.service_name==None):
+            raise ValueError("either 'sid' or 'service_name' must be given")
+        if (self.sid and self.service_name):
+            raise ValueError("Only one of 'sid' or 'service_name' must be given")
+            
     def do_db(self, stmtnts, automcommit=False):
-        dsn = cx_Oracle.makedsn(self.url, self.port, self.sid)
+        dsn = None
+        if self.sid:
+            dsn = cx_Oracle.makedsn(self.url, self.port, sid=self.sid)
+        else:
+            dsn = cx_Oracle.makedsn(self.url, self.port, service_name=self.service_name)
         results = []
         with cx_Oracle.connect(self.user, self.password, dsn) as connection:
 

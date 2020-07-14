@@ -25,7 +25,7 @@ There are the following "infos" that allow to query information of a service:
 * compoundinfo.py: use this if you want to get info's from more than one info type, or if you need more than one information from the same type.
 * gitinfo.py: returns the last commit message. Executes `git show --oneline -s` and returns the value. 
 * httpinfo.py: requests a url, and returns the result. Result can be further condensed by xpath or jsonpath.
-* oracledb_sqlinfo.py: query Oracle Database (sql) and return the query results.
+* oracledb_sqlinfo.py: query Oracle Database (sql) and return the query result(s). One or more queries can be executed.
 * soapinfo.py: executes a soap request and returns the result. Result can be further condensed by xpath.
 * tcpcommandinfo.py: connect to a port like telnet or netcat and send a command. Return the result. Result can be further condensed by regex.
 
