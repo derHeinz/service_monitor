@@ -1,5 +1,6 @@
 import logging
 import time
+import os
 from logging.handlers import RotatingFileHandler
 from pydoc import locate
 from multiprocessing import Pool
@@ -14,7 +15,7 @@ def setup_logging():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
+    console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
     
     #file_handler = RotatingFileHandler("/tmp/service_monitor.log", maxBytes=153600, backupCount=3)
@@ -62,6 +63,9 @@ def main():
     logger.debug("needed {}s to process".format((end_time - start_time)))
     
     exporter.export(results)
+    # wait a little
+    time.sleep(2)
+    os._exit(0)
 
 # Main function
 if __name__ == "__main__":
