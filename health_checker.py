@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 logger = logging.getLogger(__file__)
 
@@ -10,10 +11,11 @@ SERVICE_INFO_DEACTIVATED = "deactivated by config or state"
 SERVICE_INFO_ERROR_PREFIX = "error getting information: "
 
 def check_health(service_data, put_result_into_service_data=True):
+    service_config = service_data['service_config']
     service_name = service_data['service_name']
     logger.info("determining service status for service '{}' with checker {}".format(service_name, service_data['checker_type']))
     service_obj = service_data['checker']
-        
+    logger.debug("service_data" + str(service_data))
     service_state = SERVICE_STATE_DEFAULT
     if service_obj:
         try:
@@ -24,8 +26,9 @@ def check_health(service_data, put_result_into_service_data=True):
 
     service_info = None
     if ('info' in service_data):
-        if service_state==False and not service_data.get('query_info_even_if_offline', False):
+        if service_state==False and not service_config.get('query_info_even_if_offline', False):
             service_info = SERVICE_INFO_DEACTIVATED
+            logger.debug("don't determine service info.")
         else:
             logger.info("determining information for service '{}' with infos {}".format(service_name, service_data['info_type']))
             info_obj = service_data['info']
@@ -39,12 +42,16 @@ def check_health(service_data, put_result_into_service_data=True):
             logger.debug("service '{}' has info {}".format(service_name, service_info))
     else:
         service_info = SERVICE_INFO_NOT_CONFIGURED
-        
+
+    # take the current time
+    service_time = datetime.datetime.now().isoformat()
+    
     if put_result_into_service_data:
         service_data['service_state'] = service_state
         service_data['service_info'] = service_info
+        service_data['service_time'] = service_time
         
-    return (service_state, service_info)
+    return (service_state, service_info, service_time)
 
 def check_health_for_services(services_list):
     for service in services_list:
