@@ -9,22 +9,22 @@ class TestCompoundExporter(unittest.TestCase):
     
         cfg_str = '''
         {
-        "exporters": {
-                "HTMLDefaultExporter": {
+            "exporters": [
+                {
                     "type": "exporter.htmltableexporter.HTMLTableExporter",
                     "args": {
                         "filename": "service_states.html",
                         "group_headers": true
                     }
                 },
-                "HTMLMetroExporter": {
+                {
                     "type": "exporter.htmlmetroexporter.HTMLMetroExporter",
                     "args": {
                         "filename": "service_states2.html",
                         "group_headers": true
                     }
                 }
-            }
+            ]
         }
         '''
         cfg = json.loads(cfg_str)

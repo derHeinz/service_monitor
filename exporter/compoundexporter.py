@@ -9,11 +9,13 @@ class CompoundExporter(object):
     def __init__(self, **kwargs):
         self.exporters_config = kwargs['exporters']
         self.exporters = []
-        for exporter_config_name in self.exporters_config:
-            exporter_config = self.exporters_config[exporter_config_name]
-            self.exporters.append(self.create_exporter(exporter_config))
+        for single_exporter_config in self.exporters_config:
+            self.exporters.append(self.create_exporter(single_exporter_config))
             
-    def export(self, service_info_array):
+    def export(self, element):
         for exporter in self.exporters:
-            exporter.export(service_info_array)
+            try:
+                exporter.export(element)
+            except Exception as e:
+                logger.exception("Error exporting '{}' into exporter '{}'".format(element, exporter))
             
