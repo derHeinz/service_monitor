@@ -1,15 +1,19 @@
 import logging
 import time
 import os
+import signal
 from logging.handlers import RotatingFileHandler
 from pydoc import locate
-from multiprocessing import Pool
 
+from workers import OnceWorker, ConsecutiveWorker
 from config_helper import load_config_file
 from service_creator import create_services
-from health_checker import check_health_for_services, check_health
 
 logger = logging.getLogger(__file__)
+
+def exit_program(signal, frame):
+    time.sleep(2)
+    os._exit(0)
 
 def setup_logging():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -27,45 +31,35 @@ def setup_logging():
     root_logger.addHandler(console_handler)
     #root_logger.addHandler(file_handler)
 
-def create_exporter(config):
-    exporter_config = config['exporter']
+def create_exporter(config, exporter_config_name):
+    exporter_config = config[exporter_config_name]
     exporter_type = locate(exporter_config['type'])
     return exporter_type(**exporter_config['args'])
-    
-def as_job(service_data):
-    res = check_health(service_data)
-    service_data['service_state'] = res[0]
-    service_data['service_info'] = res[1]
-    return service_data
-    
+
 def main():
+    signal.signal(signal.SIGINT, exit_program)
     setup_logging()
     config = load_config_file('config.json')
     logger.debug("config: {}".format(config))
     
+    # parse things todo
     services_list = create_services(config)
-    exporter = create_exporter(config)
+    number_of_workers = config.get('workers', None)
     
-    # calculate health
-    results = None
-    workers = config.get('workers', None)
-    start_time = time.time()
-    if workers:
-        logger.debug("running with {} workers".format(workers))
-        procs = workers
-        p = Pool(processes=procs)
-        results = p.map(as_job, services_list)
+    consecutive = config.get('consecutive', False)
+
+    worker = None
+    exporter = None
+    if consecutive:
+        logger.info("working repeatedly on all services.")
+        exporter = create_exporter(config, 'exporter_consecutive')
+        worker = ConsecutiveWorker()
     else:
-        logger.debug("running without workers")
-        check_health_for_services(services_list)
-        results = services_list
-    end_time = time.time()
-    logger.debug("needed {}s to process".format((end_time - start_time)))
+        logger.info("working once on all services.")
+        exporter = create_exporter(config, 'exporter')
+        worker = OnceWorker()
+    worker.work(services_list, number_of_workers, exporter)
     
-    exporter.export(results)
-    # wait a little
-    time.sleep(2)
-    os._exit(0)
 
 # Main function
 if __name__ == "__main__":

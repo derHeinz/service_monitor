@@ -1,0 +1,21 @@
+.tiles-group {
+    margin-left: 0;
+    margin-top: 50px;
+}
+
+@media all and (min-width: 768px) {
+    .tiles-group {
+        margin-left: 80px;
+    }
+
+ }
+ 
+.flashit {
+    animation: flash linear 1s 3;
+}  
+
+@keyframes flash {
+    0% {opacity: 1;}
+    50% {opacity: .1;}
+    100% {opacity: 1;}
+}
