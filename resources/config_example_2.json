@@ -1,0 +1,57 @@
+{
+    "services": {
+        "Firefox": {
+			"group": "Local Services",
+			"checker_type": "checkers.commandlinechecker.CommandLineChecker",
+			"checker_args": {
+				"command_line": "tasklist | find \"firefox.exe\""
+			},
+            "info_type": "info.commandlineinfo.CommandlineInfo",
+			"info_args": {
+				"command": "wmic datafile where name=\"C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe\" get Version /value | find \"Version\""
+			},
+			"query_info_even_if_offline": true,
+            "exporter_hints": {
+                "metro_tile_icon": "mif-firefox"
+            }
+		},
+        "Evernote": {
+			"group": "Local Services",
+			"checker_type": "checkers.commandlinechecker.CommandLineChecker",
+			"checker_args": {
+				"command_line": "tasklist | find \"Evernote.exe\""
+			},
+            "info_type": "info.commandlineinfo.CommandlineInfo",
+			"info_args": {
+				"command": "wmic datafile where name=\"C:\\\\Program Files (x86)\\\\Evernote\\\\Evernote\\\\Evernote.exe\" get Version /value | find \"Version\""
+			},
+			"query_info_even_if_offline": true,
+            "exporter_hints": {
+                "metro_tile_icon": "mif-evernote"
+            }
+		}
+        
+    },
+    "consecutive": true,
+    "exporter_consecutive": {
+        "type": "exporter.compoundexporter.CompoundExporter",
+		"args": {
+			"exporters": [
+                {
+                    "type": "exporter.sse_consecutive_exporter.SSEConsecutiveExporter",
+                    "args": {
+                        "host": "localhost",
+                        "port": 5678
+                    }
+                },
+                {
+                    "type": "exporter.textfile_consecutive_exporter.TextFileConsecutiveExporter",
+                    "args": {
+                        "filename": "results.txt"
+                    }
+                }
+            ]
+		}
+    }
+    
+}

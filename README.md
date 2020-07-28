@@ -58,7 +58,7 @@ In Consecutive-mode following exporters are available:
 * easy to extend info: just write another python file in /info/. See available info files for the interface.
 * easy to extend exporters: just write another python file in /exporter/. See available exporter files for the interface.
 
-## Example 1: Configuration with explanation in Once-mode
+## example_1: Configuration with explanation in Once-mode
 ```
 {
     "services": {
@@ -106,6 +106,8 @@ In Consecutive-mode following exporters are available:
     "workers": 4
 }
 ```
+see ![example_1 config](/resources/config_example_1.json).
+
 3 Services (Skype, Firefox and epmap) are define in 2 Groups ("Local Services" and "System Services"). As exporter the HTMLMetroExporter is defined to export into a Metro_4 html.
 For Skype there is is a checker defined that executes a command line which checks whether there is a taks called "skype.exe" running. Additionally it defines an icon (mif-skype) for the metro exporter.
 For Firefox the checker is similar to Skype. Additionally there is an info configured that again executes a command line finding out the version of firefox used. This also adds a metro icon (mif-firefox) in case metro exporter is used.
@@ -113,9 +115,9 @@ For epmap (a windows service for a purpose I don't know) a checker is in place t
 
 The exporter writes a file (service_states.html) and groups the services by their groups ("group_headers": true).
 
-The result may probably look like this ![Example](/resources/screenshot-metro.PNG).
+The result may probably look like this ![example_1 result](/resources/result_example_1.png).
 
-## Example 2: Configuration with explanation in Consecutive-mode
+## example_2: Configuration with explanation in Consecutive-mode
 ```
 {
     "services": {
@@ -174,6 +176,8 @@ The result may probably look like this ![Example](/resources/screenshot-metro.PN
     
 }
 ```
+see ![example_2 config](/resources/config_example_2.json).
+
 2 Services (Firefox and Evernote) are define in 1 Group ("Local Services").
 For Firefox and Evernote there are CommandLineChecker's defined. Using tasklist to check for the program beeing there. Additionally there are infos configured that again executes a command line finding out the versions each.
 Additionally it defines icons for the metro UI.
@@ -181,7 +185,7 @@ Additionally it defines icons for the metro UI.
 The Consecutive-mode is active (consecutive=true). And because of that the exporter is defined as an "exporter_consecutive". So ther is a compound exporter defined, that again defines 2 exporters.
 First exporter is a TextFileConsecutiveExporter, that dumps the informations into a text-file called results.txt. 
 The other exporter is the SSEConsecutiveExporter. Check out http://locahost:5678 to view the example.
-The result may probably look like this ![Example](/resources/screenshot-2.PNG).
+The result may probably look like this ![Example](/resources/result_example_2.png).
 
 
 ## TODOs and ideas:
