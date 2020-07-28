@@ -1,4 +1,7 @@
 from pydoc import locate
+import logging
+
+logger = logging.getLogger(__file__)
 
 class CompoundExporter(object):
 

@@ -2,6 +2,7 @@
 from queue import Queue
 import json
 import os
+import logging
 
 from flask.wrappers import Response
 from flask.json import jsonify
@@ -9,6 +10,8 @@ from flask.json import jsonify
 from flask import Flask, make_response, send_from_directory
 from werkzeug.serving import make_server
 from threading import Thread
+
+logger = logging.getLogger(__file__)
 
 class Server(Thread):
 
