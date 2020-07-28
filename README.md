@@ -5,46 +5,60 @@ Simple service monitor
 ## What for?
 Can be used to monitor services. Services are arbitrary types of software that you want to know a state of.
 
+
 ## What can be done?
 First it is able to find a "service" to be online/offline or unkown. 
 Secondly it can be used to query information of a service, such as version number or uptime.
 
+Two modes are possible. The Once-mode and the Consecutive-mode. For historical reasons the Once-mode is the default.
+In Once-mode, all services are requested once. Afterwards the result is exported and the program exits. You can use this mode for example in conjunction with a cron job that creates an export file that you view.
+In Consecutive-mode, all services are requested consecutively. This means that they are requested, and after all are requested this process repeats. Whenever the request of on service is ready this result is immediately exported.
+
+
 ## What kind of services can be monitored?
 
 There are the following "checkers" that allow to figure out the online/offline state of a service:
-* commandlinechecker.py: executes a command line that when returning 0 is assumed to mean 'online' any other return value is 'offline'.
-* httpchecker.py: executes http call, a return code between 200 and 300 means 'online', any other return code or error is 'offline'.
-* pidfilechecker.py: reads number from a pid file, and checks whether there is process with this number as it's process id is running. In case there is one this means 'online' any other result is considered as 'offline'.
-* portavailablechecker.py: connects to a port, if this is possible it is considered to be 'online'. Any other error means 'offline'.
-* systemdchecker.py: executes a `systemctl is-active --quiet` if the return value is 0 this is considered to be 'online' any other result means 'offline'.
-
+* commandlinechecker.py: Generic Commandline checker. Executes a command line that when returning 0 is assumed to mean 'online' any other return value is 'offline'.
+* httpchecker.py: Pretty simple REST checker. Executes http call, a return code between 200 and 300 means 'online', any other return code or error is 'offline'.
+* pidfilechecker.py: Checks a pid (process id) file if that process runs. Reads number from a pid file, and checks whether there is process with this number as it's process id is running. In case there is one this means 'online' any other result is considered as 'offline'.
+* portavailablechecker.py: Checks a portnumber for beeing connectable. Connects to a port, if this is possible it is considered to be 'online'. Any other error means 'offline'.
+* systemdchecker.py: Check a Linux systemd service for beeing acitve. Executes a `systemctl is-active --quiet` if the return value is 0 this is considered to be 'online' any other result means 'offline'.
 
 There are the following "infos" that allow to query information of a service:
-* aptinfo.py: executes a `dpkg -s {} | grep Version` and returns systemout.
-* commandlineinfo.py: executes a given command and returns systemout.
-* compoundinfo.py: use this if you want to get info's from more than one info type, or if you need more than one information from the same type.
-* gitinfo.py: returns the last commit message. Executes `git show --oneline -s` and returns the value. 
-* httpinfo.py: requests a url, and returns the result. Result can be further condensed by xpath or jsonpath.
-* oracledb_sqlinfo.py: query Oracle Database (sql) and return the query result(s). One or more queries can be executed.
-* soapinfo.py: executes a soap request and returns the result. Result can be further condensed by xpath.
-* tcpcommandinfo.py: connect to a port like telnet or netcat and send a command. Return the result. Result can be further condensed by regex.
+* aptinfo.py: Infos for an APT (debian-based-linux) package. Executes a `dpkg -s {} | grep Version` and returns systemout.
+* commandlineinfo.py: Generic Commandline info. Executes a given command and returns systemout.
+* compoundinfo.py: Use Multiple "infos" together. Ese this if you want to get info's from more than one info type, or if you need more than one information from the same type.
+* gitinfo.py: GIT source-code management infos. Returns the last commit message. Executes `git show --oneline -s` and returns the value. 
+* httpinfo.py: REST or XML webservice infos. Requests a url, and returns the result. Result can be further condensed by xpath or jsonpath.
+* oracledb_sqlinfo.py: Query Oracle Database (sql) and return the query result(s). One or more queries can be executed.
+* soapinfo.py: SOAP webservice infos. Executes a soap request and returns the result. Result can be further condensed by xpath.
+* tcpcommandinfo.py: Get infos from a TCP-Port Terminal like app. Connect to a port like telnet or netcat and send a command. Return the result. Result can be further condensed by regex.
+
 
 ## How is the representation?
 
-There are the following "exporters" defined:
+In Once-mode you have the following exporters:
 * htmlexporter.py: exports into an html table which is templated by an html file called 'htmltableexporter.html'.
 * htmlmetroexporter.html: export into an html file. That contains tile-like objects to display results. Using Metro, see [Metro_4(]https://metroui.org.ua/) for more details.
 * compoundexporter.py: exports into one or more exporters simultanously.
+
+In Consecutive-mode following exporters are available:
+* textfile_consecutive_exporter.py: Exports into a plain configurable text file. Main usage is for testing.
+* mqtt_consecutive_exporter.py: Exports to configurable MQTT endpoint. Use this to further process data from mqtt.
+* sse_consecutive_exporter.py: Complexer example to export information via server-sent-events. It also has a webserver and presents a metro-based ui that displays the conesecutively sent events. Use http://localhost:5678 to view the result.
+
 
 ## Why use it?
 
 * easy to use, just write config file and run `python main.py`.
 * a variety of modules to check a service's state.
 * a veriety of modules to query for info's of states.
+* a variety of modules to export the results.
 * easy to extend checkers: just write another python file in /checkers/. See available checkers for the interface.
 * easy to extend info: just write another python file in /info/. See available info files for the interface.
+* easy to extend exporters: just write another python file in /exporter/. See available exporter files for the interface.
 
-## Example configuration with explanation
+## Example 1: Configuration with explanation in Once-mode
 ```
 {
     "services": {
@@ -101,7 +115,76 @@ The exporter writes a file (service_states.html) and groups the services by thei
 
 The result may probably look like this ![Example](/resources/screenshot-metro.PNG).
 
-## TODOs
+## Example 2: Configuration with explanation in Consecutive-mode
+```
+{
+    "services": {
+        "Firefox": {
+			"group": "Local Services",
+			"checker_type": "checkers.commandlinechecker.CommandLineChecker",
+			"checker_args": {
+				"command_line": "tasklist | find \"firefox.exe\""
+			},
+            "info_type": "info.commandlineinfo.CommandlineInfo",
+			"info_args": {
+				"command": "wmic datafile where name=\"C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe\" get Version /value | find \"Version\""
+			},
+			"query_info_even_if_offline": true,
+            "exporter_hints": {
+                "metro_tile_icon": "mif-firefox"
+            }
+		},
+        "Evernote": {
+			"group": "Local Services",
+			"checker_type": "checkers.commandlinechecker.CommandLineChecker",
+			"checker_args": {
+				"command_line": "tasklist | find \"Evernote.exe\""
+			},
+            "info_type": "info.commandlineinfo.CommandlineInfo",
+			"info_args": {
+				"command": "wmic datafile where name=\"C:\\\\Program Files (x86)\\\\Evernote\\\\Evernote\\\\Evernote.exe\" get Version /value | find \"Version\""
+			},
+			"query_info_even_if_offline": true,
+            "exporter_hints": {
+                "metro_tile_icon": "mif-evernote"
+            }
+		}
+        
+    },
+    "consecutive": true,
+    "exporter_consecutive": {
+        "type": "exporter.compoundexporter.CompoundExporter",
+		"args": {
+			"exporters": [
+                {
+                    "type": "exporter.textfile_consecutive_exporter.TextFileConsecutiveExporter",
+                    "args": {
+                        "filename": "results.txt"
+                    }
+                },                
+                {
+                    "type": "exporter.sse_consecutive_exporter.SSEConsecutiveExporter",
+                    "args": {
+                        "port": 5678
+                    }
+                }
+            ]
+		}
+    }
+    
+}
+```
+2 Services (Firefox and Evernote) are define in 1 Group ("Local Services").
+For Firefox and Evernote there are CommandLineChecker's defined. Using tasklist to check for the program beeing there. Additionally there are infos configured that again executes a command line finding out the versions each.
+Additionally it defines icons for the metro UI.
+
+The Consecutive-mode is active (consecutive=true). And because of that the exporter is defined as an "exporter_consecutive". So ther is a compound exporter defined, that again defines 2 exporters.
+First exporter is a TextFileConsecutiveExporter, that dumps the informations into a text-file called results.txt. 
+The other exporter is the SSEConsecutiveExporter. Check out http://locahost:5678 to view the example.
+The result may probably look like this ![Example](/resources/screenshot-2.PNG).
+
+
+## TODOs and ideas:
 - [ ] commandlinechecker.py needs a timeout.
 - [ ] httpchecker.py should have configureable timeout.
 - [ ] systemdchecker.py should have configureable timeout.
@@ -109,6 +192,5 @@ The result may probably look like this ![Example](/resources/screenshot-metro.PN
 - [ ] commandlineinfo.py timeout doesn't work. (under windows?)
 - [ ] httinfo.py should have configureable timeout.
 - [ ] oracledb_sqlinfo.py should have configureable timeout. 
-
-
-
+- [ ] allow to use the "exporter" in Consecutive-mode.
+- [ ] allow to use the "exporter_consecutive" in Once-mode.
