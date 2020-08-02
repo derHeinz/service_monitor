@@ -1,3 +1,4 @@
+import argparse
 import logging
 import time
 import os
@@ -37,9 +38,16 @@ def create_exporter(config, exporter_config_name):
     return exporter_type(**exporter_config['args'])
 
 def main():
+    parser = argparse.ArgumentParser(description="service_monitor command line interface.")
+    parser.add_argument("-c", dest="config", type=str, metavar="config", nargs="?", help="Optional config file name/location.")
+    args = parser.parse_args()
+    
+    config_file = args.config if args.config else 'config.json'
+    
     signal.signal(signal.SIGINT, exit_program)
     setup_logging()
-    config = load_config_file('config.json')
+    logger.debug("loading from config file {}", config_file)
+    config = load_config_file(config_file)
     logger.debug("config: {}".format(config))
     
     # parse things todo
