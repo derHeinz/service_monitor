@@ -66,7 +66,7 @@ class UIStateCalculator {
   }
   
    toInfoRepresentable(info_text) {
-    var max_service_info_length = 30;
+    var max_service_info_length = 100;
     if (info_text.length > max_service_info_length) {
       return info_text.slice(0, max_service_info_length-3) + "...";
     }
