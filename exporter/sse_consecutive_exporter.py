@@ -63,6 +63,7 @@ class Server(Thread):
         return send_from_directory(os.path.join('sse_consecutive_exporter', 'files'), path)
         
     def stream(self):
+        logger.info("attached a listener to receie SSEs.")
         def eventStream():
             while True:
                 # wait for source data to be available, then push it
