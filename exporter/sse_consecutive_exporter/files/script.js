@@ -81,6 +81,12 @@ class UIStateCalculator {
     return date.toLocaleString("de-DE");
   }
   
+  toLegalName(name) {
+    var res = name;
+    res = res.replace(/[&<>"'\/]/g,"");
+    return res;
+  }
+  
   replace_innerHTML(element_name, replacement_html) {
     var cont = this.document.getElementById(element_name);
     cont.innerHTML = replacement_html;
@@ -132,6 +138,7 @@ class UIStateCalculator {
     var info_html =  `<div class="text-upper text-small flashit">${service_info_representable}</div>`;
   
     var inner_html = `
+            <div class="cell-md-4 mt-4 flashit" id="${service_obj.service_name}">
                 <div class="icon-box border bd-default">
                     <div id="${service_obj.service_name}.state">${state_html}</div>
                     <div class="content p-4">
@@ -140,15 +147,28 @@ class UIStateCalculator {
                         <div id="${service_obj.service_name}.time">${time_html}</div>
                     </div>
                 </div>
+            </div>
     `;
     
     if (this.is_new) {
-      var cont = this.document.getElementById("service_container");
-      cont.insertAdjacentHTML("beforeend", `
-            <div class="cell-md-4 mt-4 flashit" id="${service_obj.service_name}">
-                ${inner_html}
-            </div>
-      `);
+      var service_group_legalname = this.toLegalName(service_obj.service_config.group);
+      // check group already existing:
+      var grp = this.document.getElementById(service_group_legalname);
+      
+      if (grp != null) {
+        // group existing, just insert the element at the end
+        grp.insertAdjacentHTML("beforeend", inner_html);
+      } else {
+        // group not existing, add group with heading and the element
+        var cont = this.document.getElementById("main_container");
+        cont.insertAdjacentHTML("beforeend", `
+        <p class="text-secondary fg-white">${service_obj.service_config.group}</p>
+        <div class="row mt-2" id="${service_group_legalname}">
+            ${inner_html}
+        </div>
+        `);
+      }
+      
       return;
     }
     
