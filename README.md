@@ -29,6 +29,7 @@ There are the following "infos" that allow to query information of a service:
 * commandlineinfo.py: Generic Commandline info. Executes a given command and returns systemout.
 * compoundinfo.py: Use Multiple "infos" together. Ese this if you want to get info's from more than one info type, or if you need more than one information from the same type.
 * gitinfo.py: GIT source-code management infos. Returns the last commit message. Executes `git show --oneline -s` and returns the value. 
+* pipinfo.py: PIP (package installer for python) infos, querying the version. Executes a `pip show {package}` and filters the version string.
 * httpinfo.py: REST or XML webservice infos. Requests a url, and returns the result. Result can be further condensed by xpath or jsonpath.
 * oracledb_sqlinfo.py: Query Oracle Database (sql) and return the query result(s). One or more queries can be executed.
 * soapinfo.py: SOAP webservice infos. Executes a soap request and returns the result. Result can be further condensed by xpath.
