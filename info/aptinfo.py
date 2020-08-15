@@ -1,19 +1,11 @@
-import subprocess
 import logging
+from .commandlineinfo import CommandlineInfo
 
 logger = logging.getLogger(__file__)
 
-class AptInfo(object):
+class AptInfo(CommandlineInfo):
 
     def __init__(self, **kwargs):
         self.package = kwargs['package']
-        
-    def query_info(self):
-        command = "dpkg -s {} | grep Version".format(self.package)
-        logger.debug("executing '{}'".format(command))
-        result = subprocess.check_output(command, shell=True, encoding="utf-8")
-        
-        if result:
-            result = result.strip("\n")
-            
-        return result
+        cmd = "dpkg -s {} | grep Version".format(self.package)
+        super().__init__(**kwargs, command=cmd)
