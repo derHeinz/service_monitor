@@ -1,10 +1,17 @@
 import logging
 import os
 import time
+import health_checker
 from multiprocessing import Pool
-from health_checker import check_health_for_services, check_health
 
 logger = logging.getLogger(__file__)
+
+def _health_check_and_result(service):
+    res = health_checker.check_health(service)
+    service['service_state'] = res[0]
+    service['service_info'] = res[1]
+    service['service_time'] = res[2]
+    return res
 
 class JobExecutor(object):
     
@@ -12,10 +19,7 @@ class JobExecutor(object):
         self.exporter = exporter
         
     def execute(self, service):
-        res = check_health(service)
-        service['service_state'] = res[0]
-        service['service_info'] = res[1]
-        service['service_time'] = res[2]
+        res = _health_check_and_result(service)
         self.exporter.export(service)
 
 class ConsecutiveWorker(object):
@@ -40,14 +44,14 @@ class ConsecutiveWorker(object):
                     je.execute(service)
                 end_time = time.time()
                 logger.debug("needed {}s to process a full cycle".format((end_time - start_time)))
+                sleep_time = 60*5
+                logger.info("now waiting {}s for the next cycle.".format(sleep_time))
+                time.sleep(sleep_time)
             
         # will never come...
 
-def as_job(service_data):
-    res = check_health(service_data)
-    service_data['service_state'] = res[0]
-    service_data['service_info'] = res[1]
-    service_data['service_time'] = res[2]
+def _as_job(service_data):
+    res = _health_check_and_result(service_data)
     return service_data
 
 class OnceWorker(object):
@@ -62,10 +66,11 @@ class OnceWorker(object):
             logger.debug("running with {} workers".format(workers))
             procs = workers
             p = Pool(processes=procs)
-            results = p.map(as_job, services_list)
+            results = p.map(_as_job, services_list)
         else:
             logger.debug("running without workers")
-            check_health_for_services(services_list)
+            for service in services_list:
+                _health_check_and_result(service)
             results = services_list
         end_time = time.time()
         logger.debug("needed {}s to process".format((end_time - start_time)))

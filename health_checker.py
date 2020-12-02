@@ -52,7 +52,3 @@ def check_health(service_data, put_result_into_service_data=True):
         service_data['service_time'] = service_time
         
     return (service_state, service_info, service_time)
-
-def check_health_for_services(services_list):
-    for service in services_list:
-        check_health(service)
