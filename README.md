@@ -34,7 +34,8 @@ There are the following "infos" that allow to query information of a service:
 * oracledb_sqlinfo.py: Query Oracle Database (sql) and return the query result(s). One or more queries can be executed.
 * soapinfo.py: SOAP webservice infos. Executes a soap request and returns the result. Result can be further condensed by xpath.
 * tcpcommandinfo.py: Get infos from a TCP-Port Terminal like app. Connect to a port like telnet or netcat and send a command. Return the result. Result can be further condensed by regex.
-
+* kafkainfo.py: get version info from Apache Kafka.
+* zookeeperinfo.py: get version and optionally broker availablity from Apache Zookeeper.
 
 ## How is the representation?
 
