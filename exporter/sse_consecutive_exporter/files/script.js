@@ -12,10 +12,12 @@ function start() { // when "Start" button pressed
 
   eventSource.onopen = function(e) {
     log("Event: open");
+    calculator.start_working();
   };
 
   eventSource.onerror = function(e) {
     log("Event: error");
+    calculator.end_working();
     if (this.readyState == EventSource.CONNECTING) {
       log(`Reconnecting (readyState=${this.readyState})...`);
     } else {
@@ -25,17 +27,30 @@ function start() { // when "Start" button pressed
 
   eventSource.addEventListener('bye', function(e) {
     log("Event: bye, data: " + e.data);
+    calculator.end_working();
   });
 
   eventSource.onmessage = function(e) {
     log("Event: message, data: " + e.data);
     new_data(e.data);
   };
+
 }
 
 function stop() { // when "Stop" button pressed
   eventSource.close();
+  calculator.end_working();
   log("eventSource.close()");
+}
+
+function request_update(service_name) {
+  log("request update of service " + service_name);
+  
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("POST", "http://localhost:5678/request_update", true);
+  xhttp.send(service_name);
+  
+  log("request sent");
 }
 
 class UIStateCalculator {
@@ -138,7 +153,7 @@ class UIStateCalculator {
     var info_html =  `<div class="text-upper text-small flashit">${service_info_representable}</div>`;
   
     var inner_html = `
-            <div class="cell-md-4 mt-4 flashit" id="${service_obj.service_name}">
+            <div class="cell-md-4 mt-4 flashit" id="${service_obj.service_name}" onclick="request_update('${service_obj.service_name}')">
                 <div class="icon-box border bd-default">
                     <div id="${service_obj.service_name}.state">${state_html}</div>
                     <div class="content p-4">
@@ -184,6 +199,16 @@ class UIStateCalculator {
 
   }
   
+  start_working() {
+    var progressor = this.document.getElementById('progressor');
+    progressor.classList.add("ani-pulse");
+  }
+
+  end_working() {
+    var progressor = this.document.getElementById('progressor');
+    progressor.classList.remove("ani-pulse");
+  }      
+  
   calculate_and_update(service_obj) {
     this.calculate_diff(service_obj);
     this.update_document(service_obj);
@@ -200,12 +225,12 @@ function new_data(msg) {
   2. just updated: last-updated-time flashing (optionally deactivable).
   3. info changed: service_info flashing.
   4. state changed: service_state flashing.
-  
   */
-  var calc = new UIStateCalculator(document);
-  calc.calculate_and_update(service_obj);
+  calculator.calculate_and_update(service_obj);
 }
 
 function log(msg) {
   console.log(msg);
 }
+
+let calculator = new UIStateCalculator(document);
