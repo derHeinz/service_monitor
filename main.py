@@ -57,16 +57,15 @@ def main():
     consecutive = config.get('consecutive', False)
 
     worker = None
-    exporter = None
     if consecutive:
         logger.info("working repeatedly on all services.")
         exporter = create_exporter(config, 'exporter_consecutive')
-        worker = ConsecutiveWorker()
+        worker = ConsecutiveWorker(services_list, exporter)
     else:
         logger.info("working once on all services.")
         exporter = create_exporter(config, 'exporter')
-        worker = OnceWorker()
-    worker.work(services_list, number_of_workers, exporter)
+        worker = OnceWorker(services_list, exporter)
+    worker.work_all(number_of_workers)
     
 
 # Main function

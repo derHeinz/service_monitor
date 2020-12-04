@@ -13,26 +13,47 @@ def _health_check_and_result(service):
     service['service_time'] = res[2]
     return res
 
-class JobExecutor(object):
-    
-    def __init__(self, exporter):
-        self.exporter = exporter
-        
-    def execute(self, service):
-        res = _health_check_and_result(service)
-        self.exporter.export(service)
-
 class ConsecutiveWorker(object):
 
-    def work(self, services_list, workers, exporter):
+    class JobExecutor(object):
+        
+        def __init__(self, exporter):
+            self.exporter = exporter
+            
+        def execute(self, service):
+            res = _health_check_and_result(service)
+            self.exporter.export(service)
+
+    def __init__(self, services_list, exporter, **kwargs):
+        self.exporter = exporter
+        self.services_list = services_list
+        self.job_executor = self.JobExecutor(exporter)
+        
+        # if the exporter is able to callback
+        set_worker_callback = getattr(self.exporter, "set_worker_callback", None)
+        if set_worker_callback:
+            if callable(set_worker_callback):
+                logger.debug("found callback in exporter {}".format(str(type(self.exporter))))
+                set_worker_callback(self.work_single)
+
+    def work_single(self, service_name):
+        logger.debug("requesting an out-of-order processing for service: {}".format(service_name))
+        for service in self.services_list:
+            #find the one with 'service_name' == service_name
+            if service['service_name'] == service_name:
+                self.job_executor.execute(service)
+                break
+        
+        
+
+    def work_all(self, workers):
     
-        je = JobExecutor(exporter)
         if workers:
             logger.debug("running with {} workers".format(workers))
             pool = Pool(processes=workers)
             while True:
                 start_time = time.time()
-                pool.map(je.execute, services_list)
+                pool.map(self.job_executor.execute, self.services_list)
                 end_time = time.time()
                 logger.debug("needed {}s to process a full cycle".format((end_time - start_time)))
             
@@ -40,8 +61,8 @@ class ConsecutiveWorker(object):
             logger.debug("running without workers")
             while True:
                 start_time = time.time()
-                for service in services_list:
-                    je.execute(service)
+                for service in self.services_list:
+                    self.job_executor.execute(service)
                 end_time = time.time()
                 logger.debug("needed {}s to process a full cycle".format((end_time - start_time)))
                 sleep_time = 60*5
@@ -55,8 +76,12 @@ def _as_job(service_data):
     return service_data
 
 class OnceWorker(object):
+
+    def __init__(self, services_list, exporter, **kwargs):
+        self.exporter = exporter
+        self.services_list = services_list
     
-    def work(self, services_list, workers, exporter):
+    def work_all(self, workers):
     
         # calculate health
         results = None
@@ -66,16 +91,16 @@ class OnceWorker(object):
             logger.debug("running with {} workers".format(workers))
             procs = workers
             p = Pool(processes=procs)
-            results = p.map(_as_job, services_list)
+            results = p.map(_as_job, self.services_list)
         else:
             logger.debug("running without workers")
-            for service in services_list:
+            for service in self.services_list:
                 _health_check_and_result(service)
-            results = services_list
+            results = self.services_list
         end_time = time.time()
         logger.debug("needed {}s to process".format((end_time - start_time)))
         
-        exporter.export(results)
+        self.exporter.export(results)
         # wait a little
         time.sleep(2)
         os._exit(0)
