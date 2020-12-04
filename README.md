@@ -47,7 +47,7 @@ In Once-mode you have the following exporters:
 In Consecutive-mode following exporters are available:
 * textfile_consecutive_exporter.py: Exports into a plain configurable text file. Main usage is for testing.
 * mqtt_consecutive_exporter.py: Exports to configurable MQTT endpoint. Use this to further process data from mqtt.
-* sse_consecutive_exporter.py: Complexer example to export information via server-sent-events. It also has a webserver and presents a metro-based ui that displays the conesecutively sent events. Use http://localhost:5678 to view the result.
+* sse_consecutive_exporter.py: Present web-page http://localhost:5678 showing and updating information on services. Clicking a single service updates it's state immediately.
 
 
 ## Why use it?
