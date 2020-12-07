@@ -44,6 +44,8 @@ function stop() { // when "Stop" button pressed
 }
 
 function request_update(service_name) {
+  // signal
+  calculator.update_incoming(service_name);
   log("request update of service " + service_name);
   
   var xhttp = new XMLHttpRequest();
@@ -81,7 +83,7 @@ class UIStateCalculator {
   }
   
    toInfoRepresentable(info_text) {
-    var max_service_info_length = 100;
+    var max_service_info_length = 60;
     if (info_text.length > max_service_info_length) {
       return info_text.slice(0, max_service_info_length-3) + "...";
     }
@@ -151,11 +153,14 @@ class UIStateCalculator {
     var state_html = `<div class="icon ${state_class} fg-white flashit"><span class="${icon}"></span></div>`;
     var time_html = `<div class="text-upper text-small flashit">${service_time_representable}</div>`;
     var info_html =  `<div class="text-upper text-small flashit">${service_info_representable}</div>`;
+    var badge_html = `<span id="${service_obj.service_name}.badge" style="visibility:hidden" class="badge bg-blue fg-white">!</span>`;
   
     var inner_html = `
             <div class="cell-md-4 mt-4 flashit" id="${service_obj.service_name}" onclick="request_update('${service_obj.service_name}')">
+                
                 <div class="icon-box border bd-default">
                     <div id="${service_obj.service_name}.state">${state_html}</div>
+                    ${badge_html}
                     <div class="content p-4">
                         <div class="text-upper text-bold text-lead">${service_obj.service_name}</div>
                         <div id="${service_obj.service_name}.info">${info_html}</div>
@@ -196,7 +201,9 @@ class UIStateCalculator {
     if (this.time_changed) {
       this.replace_innerHTML(service_obj.service_name + ".time", time_html);
     }
-
+    // almost always something has changed:
+    var el = this.document.getElementById(service_obj.service_name + ".badge");
+    el.style.visibility = "hidden";
   }
   
   start_working() {
@@ -207,7 +214,12 @@ class UIStateCalculator {
   end_working() {
     var progressor = this.document.getElementById('progressor');
     progressor.classList.remove("ani-pulse");
-  }      
+  }
+
+  update_incoming(service_name) {
+    var el = this.document.getElementById(service_name + ".badge");
+    el.style.visibility = "visible";
+  }
   
   calculate_and_update(service_obj) {
     this.calculate_diff(service_obj);
