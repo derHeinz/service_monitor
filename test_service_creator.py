@@ -124,4 +124,98 @@ class Testservice_creator(unittest.TestCase):
         res = create_service('fake', json.loads(cfg))
         self.assertEqual(None, res['info'])
         
+    def test_service_enablement(self):
+        # some false values
+        cfg_small_false = '''
+        {	
+			"group": "Simple Services",
+            "enabled": "false",
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_small_false))
+        self.assertEqual(False, res['enabled'])
+        
+        cfg_big_false = '''
+        {	
+			"group": "Simple Services",
+            "enabled": "False",
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_big_false))
+        self.assertEqual(False, res['enabled'])
+        
+        cfg_false_type = '''
+        {	
+			"group": "Simple Services",
+            "enabled": false,
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_false_type))
+        self.assertEqual(False, res['enabled'])
+        
+        # some true values
+        cfg_small_true = '''
+        {	
+			"group": "Simple Services",
+            "enabled": "true",
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_small_true))
+        self.assertEqual(True, res['enabled'])
+        
+        cfg_big_True = '''
+        {	
+			"group": "Simple Services",
+            "enabled": "True",
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_big_True))
+        self.assertEqual(True, res['enabled'])
+        
+        cfg_true_type = '''
+        {	
+			"group": "Simple Services",
+            "enabled": true,
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_true_type))
+        self.assertEqual(True, res['enabled'])
+        
+        cfg_sth_unclear = '''
+        {	
+			"group": "Simple Services",
+            "enabled": "yes, engage",
+			"checker_type": "checkers.testchecker.TestChecker",
+			"checker_args": {
+				"return_value": true
+			}
+		}
+        '''
+        res = create_service('fake', json.loads(cfg_sth_unclear))
+        self.assertEqual(True, res['enabled'])
+        
         

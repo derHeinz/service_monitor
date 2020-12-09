@@ -61,7 +61,9 @@ class UIStateCalculator {
   }
   
   get_class_for_state(state) {
-    if (state) {
+    if (state == null) {
+      return "bg-grey";
+    } else if (state) {
       return "bg-green";
     } else {
       return "bg-red";
@@ -71,19 +73,20 @@ class UIStateCalculator {
   get_state_for_classlist(classlist) {
     if (classlist.contains("bg-green")) {
       return true;
+    } else if (classlist.contains("bg-red")) {
+      return false;
+    } else {
+      return null;
     }
-    return false;
-  }
-  
-  get_state_for_class(clazz) {
-    if ("bg-green" == clazz) {
-      return true;
-    }
-    return false;
   }
   
    toInfoRepresentable(info_text) {
     var max_service_info_length = 60;
+    
+    if (!info_text) {
+      return info_text;
+    }
+    
     if (info_text.length > max_service_info_length) {
       return info_text.slice(0, max_service_info_length-3) + "...";
     }

@@ -4,15 +4,15 @@ import datetime
 logger = logging.getLogger(__file__)
 
 SERVICE_STATE_DEFAULT = "configuration error"
+SERVICE_STATE_DISABLED = None
 
 SERVICE_INFO_DEFAULT = "error getting information"
 SERVICE_INFO_NOT_CONFIGURED = "not configured"
 SERVICE_INFO_DEACTIVATED = "deactivated by config or state"
 SERVICE_INFO_ERROR_PREFIX = "error getting information: "
+SERVICE_INFO_STATE_DISABLED = "disabled"
 
-def check_health(service_data, put_result_into_service_data=True):
-    service_config = service_data['service_config']
-    service_name = service_data['service_name']
+def _determine_service_state(service_name, service_data):
     logger.info("determining service status for service '{}' with checker {}".format(service_name, service_data['checker_type']))
     service_obj = service_data['checker']
     logger.debug("service_data" + str(service_data))
@@ -23,10 +23,12 @@ def check_health(service_data, put_result_into_service_data=True):
         except:
             logger.exception("Error getting state for {}".format(service_name))    
     logger.debug("service '{}' is {}".format(service_name, service_state))
-
+    return service_state
+    
+def _determine_service_info(service_name, service_data, service_state):
     service_info = None
     if ('info' in service_data):
-        if service_state==False and not service_config.get('query_info_even_if_offline', False):
+        if service_state==False and not service_data['query_info_even_if_offline']:
             service_info = SERVICE_INFO_DEACTIVATED
             logger.debug("don't determine service info.")
         else:
@@ -42,6 +44,21 @@ def check_health(service_data, put_result_into_service_data=True):
             logger.debug("service '{}' has info {}".format(service_name, service_info))
     else:
         service_info = SERVICE_INFO_NOT_CONFIGURED
+    return service_info
+
+def check_health(service_data, put_result_into_service_data=True):
+    service_config = service_data['service_config']
+    service_name = service_data['service_name']
+    
+    service_state = None
+    service_info = None
+    if service_data['enabled']:
+        service_state = _determine_service_state(service_name, service_data)
+        service_info = _determine_service_info(service_name, service_data, service_state)
+    else:
+        logger.info("service '{}' is deactive.".format(service_name))
+        service_state = SERVICE_STATE_DISABLED
+        service_info = SERVICE_INFO_STATE_DISABLED
 
     # take the current time
     service_time = datetime.datetime.now().isoformat()

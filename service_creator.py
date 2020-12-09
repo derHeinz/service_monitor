@@ -50,7 +50,12 @@ def create_service(service_name, service_config):
         service_args['info'] = info_obj
 
     # enabled flag for disabling without removal from configuration
-    enabled =  service_args.get('enabled', True)
+    enabled =  service_config.get('enabled', True)
+    values_for_false = ["false", "False", False]
+    if enabled in values_for_false:
+        enabled = False
+    else:
+        enabled = True
     service_args['enabled'] = enabled
     if not enabled:
         logger.debug("service '{}' disabled.".format(service_name))
