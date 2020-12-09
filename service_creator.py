@@ -3,7 +3,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 def create_service(service_name, service_config):
     logger.debug("reading config of service '{}'".format(service_name))
 
@@ -51,8 +50,8 @@ def create_service(service_name, service_config):
 
     # enabled flag for disabling without removal from configuration
     enabled =  service_config.get('enabled', True)
-    values_for_false = ["false", "False", False]
-    if enabled in values_for_false:
+    enabled_values_for_false = ["false", "False", False]
+    if enabled in enabled_values_for_false:
         enabled = False
     else:
         enabled = True
@@ -61,7 +60,12 @@ def create_service(service_name, service_config):
         logger.debug("service '{}' disabled.".format(service_name))
 
     # flag indicating whether to query info's even if the checker resulted in False
-    query = service_args.get('query_info_even_if_offline', False)
+    query = service_config.get('query_info_even_if_offline', False)
+    query_values_for_true = ["true", "True", True]
+    if query in query_values_for_true:
+        query = True
+    else:
+        query = False
     service_args['query_info_even_if_offline'] = query
     
     return service_args

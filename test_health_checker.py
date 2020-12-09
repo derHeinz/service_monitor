@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from health_checker import check_health, SERVICE_INFO_NOT_CONFIGURED, SERVICE_STATE_DEFAULT, SERVICE_INFO_ERROR_PREFIX, SERVICE_INFO_DEACTIVATED
+from health_checker import check_health, SERVICE_INFO_NOT_CONFIGURED, SERVICE_STATE_DEFAULT, SERVICE_INFO_ERROR_PREFIX, SERVICE_INFO_DEACTIVATED, SERVICE_INFO_STATE_DISABLED
 
 class TrueChecker(object):
     def is_active(self):
@@ -40,39 +40,44 @@ class Testhealth_checker(unittest.TestCase):
 
     def test_checker(self):
    
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': TrueChecker(), 'service_config': None}
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': TrueChecker(), 'service_config': None}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), True, SERVICE_INFO_NOT_CONFIGURED)
         
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': FalseChecker(), 'service_config': None}
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': FalseChecker(), 'service_config': None}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), False, SERVICE_INFO_NOT_CONFIGURED)
         
         # check when checker throws exception
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': ExceptionChecker(), 'service_config': None}
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': ExceptionChecker(), 'service_config': None}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), SERVICE_STATE_DEFAULT, SERVICE_INFO_NOT_CONFIGURED)
         
     def test_info_checker(self):
     
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': TrueChecker(),
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': TrueChecker(),
         'info_type': 'Test', 'info':  SimpleInfo(), 'service_config': None}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), True, "Test")
         
         # check with info throws exception
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': TrueChecker(),
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': TrueChecker(),
         'info_type': 'Test', 'info':  ExceptionInfo(), 'service_config': None}
         res = check_health(cfg)
         self.assertTrue(res[0])
         self.assertTrue(res[1].startswith(SERVICE_INFO_ERROR_PREFIX))
         
-        
     def test_info_checker_query_info_even_if_offline(self):
     
         # don't check when result is False
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': FalseChecker(),
-        'info_type': 'Test', 'info':  SimpleInfo(), 'service_config': {}}
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': FalseChecker(),
+        'info_type': 'Test', 'info':  SimpleInfo(), 'query_info_even_if_offline': False}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), False, SERVICE_INFO_DEACTIVATED)
         
         # do check when extra flag is True
-        cfg = {'service_name': 'test', 'checker_type': 'Test', 'checker': FalseChecker(),
-        'info_type': 'Test', 'info':  SimpleInfo(), 'service_config': {'query_info_even_if_offline': True}}
+        cfg = {'service_name': 'test', 'enabled': True, 'checker_type': 'Test', 'checker': FalseChecker(),
+        'info_type': 'Test', 'info':  SimpleInfo(), 'query_info_even_if_offline': True}
         self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), False, "Test")
         
+    def test_disabled(self):
+    
+        cfg = {'service_name': 'test', 'enabled': False, 'checker_type': 'Test', 'checker': TrueChecker(),
+        'info_type': 'Test', 'info':  SimpleInfo(), 'query_info_even_if_offline': False}
+        
+        self.assertFirstTwoEqualLastNotNoneAndSizeIs3(check_health(cfg), None, SERVICE_INFO_STATE_DISABLED)

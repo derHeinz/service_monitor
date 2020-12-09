@@ -47,7 +47,6 @@ def _determine_service_info(service_name, service_data, service_state):
     return service_info
 
 def check_health(service_data, put_result_into_service_data=True):
-    service_config = service_data['service_config']
     service_name = service_data['service_name']
     
     service_state = None
