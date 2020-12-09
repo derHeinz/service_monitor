@@ -6,3 +6,4 @@ Flask>=1.1.2
 paho-mqtt>=1.5.0
 kafka-python>=2.0.2
 kazoo>=2.8.0
+fabric>=2.5.0

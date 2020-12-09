@@ -23,6 +23,7 @@ There are the following "checkers" that allow to figure out the online/offline s
 * pidfilechecker.py: Checks a pid (process id) file if that process runs. Reads number from a pid file, and checks whether there is process with this number as it's process id is running. In case there is one this means 'online' any other result is considered as 'offline'.
 * portavailablechecker.py: Checks a portnumber for beeing connectable. Connects to a port, if this is possible it is considered to be 'online'. Any other error means 'offline'.
 * systemdchecker.py: Check a Linux systemd service for beeing acitve. Executes a `systemctl is-active --quiet` if the return value is 0 this is considered to be 'online' any other result means 'offline'.
+* filesystemfreechecker.py: Check used filesystem space on a linux filesystem against a threshold.
 
 There are the following "infos" that allow to query information of a service:
 * aptinfo.py: Infos for an APT (debian-based-linux) package. Executes a `dpkg -s {} | grep Version` and returns systemout.
@@ -36,6 +37,7 @@ There are the following "infos" that allow to query information of a service:
 * tcpcommandinfo.py: Get infos from a TCP-Port Terminal like app. Connect to a port like telnet or netcat and send a command. Return the result. Result can be further condensed by regex.
 * kafkainfo.py: get version info from Apache Kafka.
 * zookeeperinfo.py: get version and optionally broker availablity from Apache Zookeeper.
+* remotesshcommandinfo.py: execute ssh command on a remote linux and returns stdout.
 
 ## How is the representation?
 
