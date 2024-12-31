@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__file__)
 
+
 class SOAPInfo(object):
 
     def __init__(self, **kwargs):
@@ -24,4 +25,3 @@ class SOAPInfo(object):
         else:
             res_text = str(res_bytes)
         return res_text
-        

@@ -3,6 +3,7 @@ from fabric import Connection
 
 logger = logging.getLogger(__file__)
 
+
 class FileSystemFreeChecker(object):
 
     def __init__(self, **kwargs):

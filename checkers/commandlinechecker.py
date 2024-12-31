@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__file__)
 
+
 class CommandLineChecker(object):
 
     def __init__(self, **kwargs):

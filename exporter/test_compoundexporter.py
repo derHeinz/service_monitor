@@ -3,10 +3,11 @@ import json
 
 from . compoundexporter import CompoundExporter
 
+
 class TestCompoundExporter(unittest.TestCase):
 
     def test_instantiate_others(self):
-    
+
         cfg_str = '''
         {
             "exporters": [
@@ -28,6 +29,4 @@ class TestCompoundExporter(unittest.TestCase):
         }
         '''
         cfg = json.loads(cfg_str)
-        t = CompoundExporter(**cfg)
-        
-        
+        CompoundExporter(**cfg)

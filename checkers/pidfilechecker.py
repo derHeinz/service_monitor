@@ -7,11 +7,12 @@ import errno
 
 logger = logging.getLogger(__file__)
 
+
 class PidFileChecker(object):
 
     def __init__(self, **kwargs):
         self.pid_file = kwargs['pid_file']
-            
+
     def pid_exists(self, pid):
         """Check whether pid exists in the current process table.
         UNIX only.
@@ -39,16 +40,15 @@ class PidFileChecker(object):
                 raise
         else:
             return True
-            
-        
+
     def is_active(self):
         with open(self.pid_file, 'r') as file:
             line = file.readline()
-            #parse a number
+            # parse a number
             try:
                 pid = int(line)
                 logger.debug("read {} from file {}".format(pid, self.pid_file))
                 return self.pid_exists(pid)
-            except ValueError as ve:
+            except ValueError as e:
                 logger.error("ValueError error ({0}): {1}".format(e.errno, e.strerror))
                 return False

@@ -1,8 +1,9 @@
-from urllib.request import urlopen 
+from urllib.request import urlopen
 from urllib.error import URLError
 import logging
 
 logger = logging.getLogger(__file__)
+
 
 class HttpChecker(object):
 

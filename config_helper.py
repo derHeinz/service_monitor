@@ -7,22 +7,23 @@ import logging
 
 logger = logging.getLogger(__file__)
 
+
 def read_config_file(filename):
     logger.info("reading file {}".format(filename))
     relative_path = os.path.join(os.path.dirname(__file__), filename)
-    data = None
-    with open(relative_path) as data_file:    
+    with open(relative_path) as data_file:
         return json.load(data_file)
-   
+
+
 def load_config_file(filename):
-   
+
     data = read_config_file(filename)
     # load subconfig files
     subconfigfiles = data.get("configfiles")
     if subconfigfiles:
         logger.debug("loading subconfigs")
         for subconfigfile in subconfigfiles:
-           
+
             subconfig_data = read_config_file(subconfigfile)
             # merge into data
             services_data = data.get('services')
@@ -35,6 +36,6 @@ def load_config_file(filename):
                 services_data.update(subconfig_data)
             else:
                 data['services'] = subconfig_data  
-   
+
     logger.debug(json.dumps(data, indent=4, sort_keys=True))
     return data

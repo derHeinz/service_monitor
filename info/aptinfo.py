@@ -3,6 +3,7 @@ from .commandlineinfo import CommandlineInfo
 
 logger = logging.getLogger(__file__)
 
+
 class AptInfo(CommandlineInfo):
 
     def __init__(self, **kwargs):

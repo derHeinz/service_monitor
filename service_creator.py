@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def create_service(service_name, service_config):
     logger.debug("reading config of service '{}'".format(service_name))
 
@@ -17,15 +18,15 @@ def create_service(service_name, service_config):
     checker_type = service_config['checker_type']
     service_args['checker_type'] = checker_type
     checker_type_class = locate(checker_type)
-    if None == checker_type_class:
+    if None is checker_type_class:
         logger.error("Cannot locate checker of type {}".format(checker_type))
     service_args['checker_type_class'] = checker_type_class
-        
+
     checker_obj = None
     if checker_type_class:
         try:
             checker_obj = checker_type_class(**service_config['checker_args'])
-        except:
+        except Exception:
             logger.exception("Error configuring checker for {}".format(service_name))
 
     service_args['checker'] = checker_obj
@@ -35,21 +36,21 @@ def create_service(service_name, service_config):
         info_type = service_config['info_type']
         service_args['info_type'] = info_type
         info_type_class = locate(info_type)
-        if None == info_type_class:
+        if None is info_type_class:
             logger.error("Cannot locate info of type {}".format(info_type))
         service_args['info_type_class'] = info_type_class
-            
+
         info_obj = None
         if info_type_class:
             try:
                 info_obj = info_type_class(**service_config['info_args'])
-            except:
+            except Exception:
                 logger.exception("Error configuring info for {}".format(service_name))
 
         service_args['info'] = info_obj
 
     # enabled flag for disabling without removal from configuration
-    enabled =  service_config.get('enabled', True)
+    enabled = service_config.get('enabled', True)
     enabled_values_for_false = ["false", "False", False]
     if enabled in enabled_values_for_false:
         enabled = False
@@ -67,8 +68,9 @@ def create_service(service_name, service_config):
     else:
         query = False
     service_args['query_info_even_if_offline'] = query
-    
+
     return service_args
+
 
 def create_services(config):
     services_config = config['services']

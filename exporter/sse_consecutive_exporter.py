@@ -2,6 +2,7 @@ from queue import Queue
 import json
 import os
 import logging
+import time
 
 from flask.wrappers import Response
 from flask.json import jsonify
@@ -12,6 +13,7 @@ from threading import Thread
 
 logger = logging.getLogger(__file__)
 
+
 class _WebServer(Thread):
 
     def __init__(self):
@@ -20,7 +22,7 @@ class _WebServer(Thread):
 
         self.messages = Queue()
         self.service_callback = None
-        
+
         self.app = Flask(__name__)
         self.app.config['port'] = 5678
         self.app.config['app_name'] = "Server Sent Events Exporter"
@@ -34,13 +36,13 @@ class _WebServer(Thread):
         self.app.add_url_rule(rule="/files/<path:path>", view_func=self.files, methods=['GET'])
         self.app.add_url_rule(rule="/stream", view_func=self.stream)
         self.app.add_url_rule(rule="/request_update", view_func=self.request_update, methods=['POST'])
-        
+
         # register default error handler
         self.app.register_error_handler(code_or_exception=404, f=self.not_found)
 
     def send_message(self, data):
         self.messages.put(data)
-        
+
     def _get_message(self):
         return self.messages.get()
 
@@ -55,17 +57,18 @@ class _WebServer(Thread):
 
     def not_found(self, error):
         return make_response(jsonify({'error': 'Not found'}), 404)
-        
+
     def index(self):
         """Serve the main index page"""
         return send_from_directory('sse_consecutive_exporter', 'metro-sse-index.html')
-        
+
     def files(self, path):
         """Serve files from the static directory"""
         return send_from_directory(os.path.join('sse_consecutive_exporter', 'files'), path)
-        
+
     def stream(self):
         logger.info("attached a listener to receive SSEs.")
+
         def eventStream():
             while True:
                 # wait for source data to be available, then push it
@@ -79,7 +82,7 @@ class _WebServer(Thread):
         logger.info("received request to update: " + requested_service_name)
         self.service_callback(requested_service_name)
         return 'Success'
-        
+
 
 class SSEConsecutiveExporter(object):
 
@@ -87,13 +90,13 @@ class SSEConsecutiveExporter(object):
         self.server = _WebServer()
         self.server.setDaemon(True)
         self.server.start()
-                
+
     def export(self, service):
         keys_to_export = ['service_name', 'service_config', 'service_state', 'service_info', 'service_time']
-        exportable = { key: service[key] for key in keys_to_export }
-    
+        exportable = {key: service[key] for key in keys_to_export}
+
         json_string = json.dumps(exportable)
         self.server.send_message(json_string)
-        
+
     def set_worker_callback(self, service_worker_callback):
         self.server.service_callback = service_worker_callback

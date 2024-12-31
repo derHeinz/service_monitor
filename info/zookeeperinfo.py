@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__file__)
 
+
 class ZookeeperInfo(object):
 
     def __init__(self, **kwargs):
@@ -12,14 +13,14 @@ class ZookeeperInfo(object):
     def query_info(self):
         try:
             logger.debug("connecting to zookeeper at '{}'".format(self.hosts))
-            
+
             client = KazooClient(hosts=self.hosts)
             client.start()
             version = client.server_version()
             res = f"version: {version}"
-            
+
             # check w/o path/broker
-            if self.path_check != None:
+            if self.path_check is not None:
                 logger.debug("checking path availablility {}".format(self.path_check))
                 check_path_result = client.exists(self.path_check)
                 if (check_path_result):
@@ -29,7 +30,7 @@ class ZookeeperInfo(object):
 
             client.stop()
             client.close()
-            
+
             return res
         except Exception as e:
             logger.debug("some error {}".format(e))
